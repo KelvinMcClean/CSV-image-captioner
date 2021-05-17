@@ -16,8 +16,9 @@ import re
 import sys
 from io import BytesIO
 from math import ceil
-
+import pathlib
 import requests
+import os
 from PIL import Image, ImageSequence, ImageFont, ImageDraw
 import csv
 
@@ -293,6 +294,8 @@ class CaptionedImage:
         return self.image
 
     def save(self, url):
+        dir = os.path.dirname(url)
+        pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
         self.image.save(url)
 
 
