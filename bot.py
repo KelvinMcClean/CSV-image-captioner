@@ -745,6 +745,7 @@ class TitleToImageBot(object):
         # This is godawful, but the impact on performance isn't too bad
 
         # Loop over each frame in the animated image
+        frame_durations = self.find_frame_durations(img)
         for frame in ImageSequence.Iterator(img):
             # Draw the text on the frame
 
@@ -773,7 +774,7 @@ class TitleToImageBot(object):
         # Save the frames as a new image
         path_gif = 'temp.gif'
         # path_mp4 = 'temp.mp4'
-        frames[0].save(path_gif, save_all=True, append_images=frames[1:])
+        frames[0].save(path_gif, save_all=True, append_images=frames[1:], duration=frame_durations)
         # ff = ffmpy.FFmpeg(inputs={path_gif: None},outputs={path_mp4: None})
         # ff.run()
 
@@ -790,6 +791,20 @@ class TitleToImageBot(object):
             return None
         # remove(path_mp4)
         return url
+
+    def find_frame_durations(self, img):
+        duration_list = list()
+        img.seek(0)  # move to the start of the gif, frame 0
+        # run a while loop to loop through the frames
+        while True:
+            try:
+                frame_duration = img.info['duration']  # returns current frame duration in milli sec.
+                duration_list.append(frame_duration)
+                # now move to the next frame of the gif
+                img.seek(img.tell() + 1)  # image.tell() = current frame
+            except EOFError:
+                return duration_list
+
 
     @staticmethod
     def get_params_from_twitter(link):
